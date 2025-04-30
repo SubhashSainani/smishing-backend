@@ -10,6 +10,12 @@ jobs:
     runs-on: self-hosted
 
     steps:
+    - name: Mark runner directory as safe for Git
+      shell: pwsh
+      run: |
+        git config --global --add safe.directory "C:/actions-runner/_work/smishing-backend/smishing-backend"
+
+    steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
