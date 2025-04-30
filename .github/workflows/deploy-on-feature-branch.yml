@@ -10,12 +10,17 @@ jobs:
     runs-on: self-hosted
 
     steps:
+    - name: Clean up workspace
+      run: rm -rf ${{ github.workspace }}
+      shell: bash
+
     - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Set Execution Policy for PowerShell
       run: |
         Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+      shell: pwsh
 
     - name: Display Docker Info
       run: |
@@ -32,16 +37,13 @@ jobs:
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u 2017445 --password-stdin
 
     - name: Build and tag Docker image
-      run: |
-        docker build -t 2017445/smishing-backend:latest .
+      run: docker build -t 2017445/smishing-backend:latest .
 
     - name: Push Docker image to Docker Hub
-      run: |
-        docker push 2017445/smishing-backend:latest
+      run: docker push 2017445/smishing-backend:latest
 
     - name: Load image into Minikube
-      run: |
-        minikube image load 2017445/smishing-backend:latest
+      run: minikube image load 2017445/smishing-backend:latest
 
     - name: Apply Kubernetes manifests
       run: |
@@ -50,9 +52,7 @@ jobs:
         kubectl apply -f k8s/smishing-backend-secrets.yaml
 
     - name: Verify Deployment
-      run: |
-        kubectl rollout status deployment/smishing-backend
+      run: kubectl rollout status deployment/smishing-backend
 
     - name: Check Minikube Status
-      run: |
-        minikube status
+      run: minikube status
