@@ -11,57 +11,40 @@ jobs:
 
     steps:
     - name: Mark runner directory as safe for Git
-      shell: pwsh
-      run: |
-        git config --global --add safe.directory "C:/actions-runner/_work/smishing-backend/smishing-backend"
+      run: git config --global --add safe.directory "C:/actions-runner/_work/smishing-backend/smishing-backend"
 
     - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Set Execution Policy for PowerShell
-      shell: pwsh
-      run: |
-        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+      run: powershell -Command "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force"
 
     - name: Docker Info & Buildx Setup
-      shell: pwsh
       run: |
         docker info
         docker version
         docker buildx version
 
     - name: Log in to Docker Hub
-      shell: pwsh
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u 2017445 --password-stdin
 
     - name: Build and tag Docker image
-      shell: pwsh
-      run: |
-        docker build -t 2017445/smishing-backend:latest .
+      run: docker build -t 2017445/smishing-backend:latest .
 
     - name: Push Docker image to Docker Hub
-      shell: pwsh
-      run: |
-        docker push 2017445/smishing-backend:latest
+      run: docker push 2017445/smishing-backend:latest
 
     - name: Load image into Minikube
-      shell: pwsh
-      run: |
-        minikube image load 2017445/smishing-backend:latest
+      run: minikube image load 2017445/smishing-backend:latest
 
     - name: Apply Kubernetes manifests
-      shell: pwsh
       run: |
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
         kubectl apply -f k8s/smishing-backend-secrets.yaml
 
     - name: Verify Deployment
-      shell: pwsh
-      run: |
-        kubectl rollout status deployment/smishing-backend
+      run: kubectl rollout status deployment/smishing-backend
 
     - name: Check Minikube Status
-      shell: pwsh
-      run: |
-        minikube status
+      run: minikube status
