@@ -3,7 +3,7 @@ name: Deploy to Minikube
 on:
   push:
     branches:
-      - 'BE-docker-kubernates-feature'  # exact match for your branch name
+      - 'BE-docker-kubernetes-feature'  # exact match for your branch name
 
 jobs:
   deploy:
