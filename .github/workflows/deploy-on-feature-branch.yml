@@ -10,49 +10,53 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Clean up workspace
-      run: rm -rf ${{ github.workspace }}
-      shell: bash
-
     - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Set Execution Policy for PowerShell
+      shell: pwsh
       run: |
         Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-      shell: pwsh
 
-    - name: Display Docker Info
+    - name: Docker Info & Buildx Setup
+      shell: pwsh
       run: |
         docker info
+        docker version
         docker buildx version
-        docker buildx ls
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-      with:
-        driver: docker
 
     - name: Log in to Docker Hub
+      shell: pwsh
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u 2017445 --password-stdin
 
     - name: Build and tag Docker image
-      run: docker build -t 2017445/smishing-backend:latest .
+      shell: pwsh
+      run: |
+        docker build -t 2017445/smishing-backend:latest .
 
     - name: Push Docker image to Docker Hub
-      run: docker push 2017445/smishing-backend:latest
+      shell: pwsh
+      run: |
+        docker push 2017445/smishing-backend:latest
 
     - name: Load image into Minikube
-      run: minikube image load 2017445/smishing-backend:latest
+      shell: pwsh
+      run: |
+        minikube image load 2017445/smishing-backend:latest
 
     - name: Apply Kubernetes manifests
+      shell: pwsh
       run: |
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
         kubectl apply -f k8s/smishing-backend-secrets.yaml
 
     - name: Verify Deployment
-      run: kubectl rollout status deployment/smishing-backend
+      shell: pwsh
+      run: |
+        kubectl rollout status deployment/smishing-backend
 
     - name: Check Minikube Status
-      run: minikube status
+      shell: pwsh
+      run: |
+        minikube status
