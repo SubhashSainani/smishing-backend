@@ -13,8 +13,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Display Docker Info
+      run: |
+        docker info
+        docker buildx version
+        docker buildx ls
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
+      with:
+        version: latest
+        driver: "docker-container"
+        use: true
 
     - name: Log in to Docker Hub
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u 2017445 --password-stdin
@@ -35,7 +45,12 @@ jobs:
       run: |
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
+        kubectl apply -f k8s/smishing-backend-secrets.yaml
 
     - name: Verify Deployment
       run: |
         kubectl rollout status deployment/smishing-backend
+
+    - name: Check Minikube Status
+      run: |
+        minikube status
