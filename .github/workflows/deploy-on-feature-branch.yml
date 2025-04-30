@@ -3,7 +3,7 @@ name: Deploy to Minikube
 on:
   push:
     branches:
-      - 'BE-docker-kubernetes-feature'  # exact match for your branch name
+      - 'BE-docker-kubernetes-feature'
 
 jobs:
   deploy:
@@ -12,6 +12,10 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Set Execution Policy for PowerShell
+      run: |
+        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
 
     - name: Display Docker Info
       run: |
