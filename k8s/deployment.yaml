@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smishing-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smishing-backend
+  template:
+    metadata:
+      labels:
+        app: smishing-backend
+    spec:
+      containers:
+      - name: smishing-backend
+        image: 2017445/smishing-backend:latest  # Use the DockerHub image
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - secretRef:
+            name: smishing-backend-secrets  # Reference to the Kubernetes secret
