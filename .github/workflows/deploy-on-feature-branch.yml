@@ -15,7 +15,6 @@ jobs:
       run: |
         git config --global --add safe.directory "C:/actions-runner/_work/smishing-backend/smishing-backend"
 
-    steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
