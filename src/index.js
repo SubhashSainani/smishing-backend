@@ -5,7 +5,7 @@ import authRoute from "./routes/auth.route.js";
 import spamRoute from "./routes/spam.route.js";
 import contactRoute from "./routes/contact.route.js";
 import securityMiddleware from "./middlewares/security.middleware.js";
-import { apiLimiter, authLimiter } from "./middlewares/rateLimiter.middleware.js";
+import { apiLimiter, authLimiter } from "./middlewares/RateLimiter.middleware.js";
 
 // calling body-parser to handle the Request Object from POST requests
 import bodyParser from "body-parser";
