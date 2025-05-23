@@ -47,6 +47,5 @@ jobs:
         push: true
         tags: |
           ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:latest
-          ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:v1.0
         cache-from: type=gha
         cache-to: type=gha,mode=max
