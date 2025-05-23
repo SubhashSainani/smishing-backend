@@ -64,10 +64,9 @@ jobs:
         gcloud components install gke-gcloud-auth-plugin
         gcloud config set container/use_client_certificate False
 
-    - name: Set up kubeconfig
+    - name: Get GKE credentials
       run: |
-        mkdir -p $HOME/.kube
-        echo "${{ secrets.KUBE_CONFIG_DATA }}" > $HOME/.kube/config
+        gcloud container clusters get-credentials "$GKE_CLUSTER" --region "$GKE_REGION"
 
     - name: Restart deployment to pull latest image
       run: |
