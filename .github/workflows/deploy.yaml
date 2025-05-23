@@ -1,0 +1,76 @@
+name: Deploy to GKE
+
+on:
+  push:
+    branches: [ BE-GKE-Deployment ]
+
+env:
+  PROJECT_ID: sit-25t1-smishing-9b0e71f
+  GKE_CLUSTER: smishing-cluster-central
+  GKE_REGION: us-central1
+  DEPLOYMENT_NAME: smishing-backend
+  IMAGE: smishing-backend
+  DOCKER_HUB_USERNAME: subhash707
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests (if available)
+      run: npm test --if-present
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:latest
+          ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:v1.0
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Get GKE credentials
+      run: |
+        gcloud container clusters get-credentials "$GKE_CLUSTER" --region "$GKE_REGION"
+
+    - name: Restart deployment to pull latest image
+      run: |
+        kubectl rollout restart deployment/$DEPLOYMENT_NAME
+
+    - name: Verify deployment
+      run: |
+        kubectl rollout status deployment/$DEPLOYMENT_NAME
+        kubectl get services -o wide

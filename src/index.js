@@ -34,6 +34,14 @@ app.use("/api/contact", contactRoute);
 // Mount spam routes at /api/spam
 app.use('/api/spam', spamRoute)
 
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'OK', 
+        timestamp: new Date().toISOString(),
+        service: 'smishing-backend'
+    });
+});
+
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smishing-backend
+  labels:
+    app: smishing-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: smishing-backend
+  template:
+    metadata:
+      labels:
+        app: smishing-backend
+    spec:
+      containers:
+      - name: smishing-backend
+        image: docker.io/subhash707/smishing-backend:v1.0
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: mongo-uri
+        - name: EMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: email-user
+        - name: EMAIL_PASS
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: email-pass
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smishing-backend-service
+  labels:
+    app: smishing-backend
+spec:
+  selector:
+    app: smishing-backend
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+  type: ClusterIP
