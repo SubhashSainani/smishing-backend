@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: smishing-backend
-        image: docker.io/subhash707/smishing-backend:latest
+        image: docker.io/subhash707/smishing-backend:${{ github.sha }}
         imagePullPolicy: Always
         ports:
         - containerPort: 3000

@@ -46,6 +46,8 @@ jobs:
         context: .
         push: true
         tags: |
+          ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:${{ github.sha }}
           ${{ env.DOCKER_HUB_USERNAME }}/${{ env.IMAGE }}:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        no-cache: true  # Force rebuild without cache
