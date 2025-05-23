@@ -59,9 +59,10 @@ jobs:
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
 
-    - name: Get GKE credentials
+    - name: Set up kubeconfig
       run: |
-        gcloud container clusters get-credentials "$GKE_CLUSTER" --region "$GKE_REGION"
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG_DATA }}" > $HOME/.kube/config
 
     - name: Restart deployment to pull latest image
       run: |
